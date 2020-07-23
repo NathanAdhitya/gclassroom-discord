@@ -4,7 +4,7 @@ Enhances student laziness by automatically posting classroom announcements and a
 ## Self Deploy Guide
 1. Create a Script App Project https://script.google.com/
 2. Follow the guide on installing `clasp` https://github.com/google/clasp
-3. Clone this git locally `git clone git@github.com:NathanAdhitya/glclassroom-discord.git`
+3. Clone this git locally `git clone https://github.com/NathanAdhitya/gclassroom-discord.git`
 4. Create a .clasp.json, fill in with `{"scriptId": "your script id here"}`, replace "your script id here" with script id obtained by going to `File > Project Properties > Info`
 5. Push the project to google apps script using `clasp push`
 6. Follow the Project Setup Guide
