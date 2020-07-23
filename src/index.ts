@@ -24,6 +24,7 @@ const userProperties = PropertiesService.getUserProperties();
 
 // Some settings.
 const hook = userProperties.getProperty("discordWebhook") || scriptProperties.getProperty("discordWebhook");
+const ignored = scriptProperties.getProperty("ignoredClasses") ? JSON.parse(scriptProperties.getProperty("ignoredClasses")) as number[] : [];
 const locale = userProperties.getProperty("locale") || scriptProperties.getProperty("locale") || "id";
 
 // Classroom related functions
@@ -32,7 +33,7 @@ const locale = userProperties.getProperty("locale") || scriptProperties.getPrope
 function listAllCourses() {
     const response = Classroom.Courses.list();
     const courses = response.courses;
-    return courses.filter((element) => element.courseState === "ACTIVE");
+    return courses.filter((element) => element.courseState === "ACTIVE" && !ignored.includes(Number(element.id)));
 }
 
 /** Filters out new entries */
