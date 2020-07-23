@@ -13,3 +13,25 @@ describe("Convert Google's DueDate and DueTime format", () => {
     });
 });
 
+describe("Cut data for updates", () => {
+    test("expect original return when all data are after the last update", () => {
+        const testData = [
+            {updateTime: new Date(3).toISOString()},
+            {updateTime: new Date(2).toISOString()},
+            {updateTime: new Date(1).toISOString()},
+        ];
+        const result = base.cutLastUpdate(testData, 0);
+        expect(result).toEqual(testData);
+    })
+
+    test("expect to return the data after the last update", () => {
+        const testData = [
+            {updateTime: new Date(3).toISOString()},
+            {updateTime: new Date(2).toISOString()},
+            {updateTime: new Date(1).toISOString()},
+        ];
+        const result = base.cutLastUpdate(testData, 2);
+        expect(result).toEqual([{updateTime: new Date(3).toISOString()}]);
+        expect(result).toHaveLength(1);
+    })
+});

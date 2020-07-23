@@ -1,0 +1,7 @@
+**/*.spec.ts
+**/*.d.ts
+node_modules/**/*
+.git/**/*
+package.json
+jest.config.js
+.git
