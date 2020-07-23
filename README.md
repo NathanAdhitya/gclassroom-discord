@@ -1,6 +1,9 @@
 # gclassroom-discord
 Enhances student laziness by automatically posting classroom announcements and assignments through a Discord Webhook.
 
+## Screenshots of it in action
+![Screenshots in action](/docs/ss1.png)
+
 ## Self Deploy Guide
 1. Create a Script App Project https://script.google.com/
 2. Follow the guide on installing `clasp` https://github.com/google/clasp
