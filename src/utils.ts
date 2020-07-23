@@ -42,6 +42,7 @@ export function generateEmbedContent(from: GoogleAppsScript.Classroom.Schema.Cou
     return `
         ${text.substr(0, 1900 - materialText.length)}${text.length > 1900 - materialText.length ? "..." : ""}
 
+        **Attachments: **
         ${materialText}
     `;
 }
