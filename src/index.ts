@@ -4,9 +4,8 @@
  */
 
 /*
-Latest Changelogs (21/07/2020)
-- Now supports when things get updated.
-- added extra comments, needs more comedy though.
+Latest Changelogs (24/07/2020)
+- fixed hogging google's script properties API
 */
 
 /*
@@ -23,9 +22,10 @@ const scriptProperties = PropertiesService.getScriptProperties();
 const userProperties = PropertiesService.getUserProperties();
 
 // Some settings.
-const hook = userProperties.getProperty("discordWebhook") || scriptProperties.getProperty("discordWebhook");
-const ignored = scriptProperties.getProperty("ignoredClasses") ? JSON.parse(scriptProperties.getProperty("ignoredClasses")) as number[] : [];
-const locale = userProperties.getProperty("locale") || scriptProperties.getProperty("locale") || "id";
+const hook = scriptProperties.getProperty("discordWebhook");
+const ignores = scriptProperties.getProperty("ignoredClasses");
+const ignored = ignores ? JSON.parse(ignores) as number[] : [];
+const locale = scriptProperties.getProperty("locale") || "id";
 
 // Classroom related functions
 
@@ -37,9 +37,7 @@ function listAllCourses() {
 }
 
 /** Filters out new entries */
-function getNewEntries(course: GoogleAppsScript.Classroom.Schema.Course) {
-    // Compute property name
-    const property = `${course.id}_lastUpdate`;
+function getNewEntries(course: GoogleAppsScript.Classroom.Schema.Course, lastUpdate?: number) {
     // Catch weird google issues
     try {
         const responseA = Classroom.Courses.Announcements.list(course.id);
@@ -47,20 +45,13 @@ function getNewEntries(course: GoogleAppsScript.Classroom.Schema.Course) {
         const announcements = responseA.announcements;
         const courseWorks = responseB.courseWork;
 
-        // Now, let's get the newest ones.
-        const lastUpdate = Number(scriptProperties.getProperty(property));
-
         if (lastUpdate) {
             const filteredAnnouncements = !announcements ? null : cutLastUpdate(announcements, lastUpdate);
             const filteredCourseWorks = !courseWorks ? null : cutLastUpdate(courseWorks, lastUpdate);
 
-            // Update the last update data.
-            scriptProperties.setProperty(property, String(Date.now()));
             return { announcements: filteredAnnouncements, courseWorks: filteredCourseWorks }
         }
 
-        // Update the last update data.
-        scriptProperties.setProperty(property, String(Date.now()));
         return { announcements, courseWorks };
     } catch (e) {
         Logger.log(e);
@@ -71,8 +62,15 @@ function getNewEntries(course: GoogleAppsScript.Classroom.Schema.Course) {
 function run() {
     const embeds: Discord.Embed[] = [];
     const courses = listAllCourses();
+
+    // Now, let's get the newest ones.
+    const lastUpdate = Number(scriptProperties.getProperty("lastUpdate"));
+
+    // Update the last update data.
+    scriptProperties.setProperty("lastUpdate", String(Date.now()));
+
     courses.forEach((course) => {
-        const { announcements, courseWorks } = getNewEntries(course);
+        const { announcements, courseWorks } = getNewEntries(course, lastUpdate);
         if (announcements && announcements.length > 0) {
             announcements.forEach((announcement) => {
                 const { alternateLink, updateTime, creationTime } = announcement;
