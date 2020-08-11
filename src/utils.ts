@@ -6,7 +6,7 @@ import { Discord } from "./typings";
 export function convertDue(date: GoogleAppsScript.Classroom.Schema.Date, time: GoogleAppsScript.Classroom.Schema.TimeOfDay): Date {
     const d = new Date();
     d.setUTCDate(date.day);
-    d.setUTCMonth(date.month);
+    d.setUTCMonth(date.month - 1);
     d.setUTCFullYear(date.year);
     d.setUTCHours(time.hours || 0);
     d.setUTCMinutes(time.minutes || 0);

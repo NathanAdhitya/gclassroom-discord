@@ -5,7 +5,7 @@ describe("Convert Google's DueDate and DueTime format", () => {
         const currentDate = new Date();
         const result = base.convertDue({
             year: currentDate.getUTCFullYear(),
-            month: currentDate.getUTCMonth(),
+            month: currentDate.getUTCMonth() + 1,
             day: currentDate.getUTCDate(),
         }, {}).getTime();
         currentDate.setUTCHours(0, 0, 0, 0);
