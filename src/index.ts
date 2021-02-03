@@ -42,14 +42,17 @@ function getNewEntries(course: GoogleAppsScript.Classroom.Schema.Course, lastUpd
     try {
         const responseA = Classroom.Courses.Announcements.list(course.id);
         const responseB = Classroom.Courses.CourseWork.list(course.id);
+        const responseC = Classroom.Courses.CourseWorkMaterials.list(course.id);
         const announcements = responseA.announcements;
         const courseWorks = responseB.courseWork;
+        const courseWorkMaterials = responseC.courseWorkMaterial;
 
         if (lastUpdate) {
             const filteredAnnouncements = !announcements ? null : cutLastUpdate(announcements, lastUpdate);
             const filteredCourseWorks = !courseWorks ? null : cutLastUpdate(courseWorks, lastUpdate);
+            const filteredCourseWorkMaterials = !courseWorkMaterials ? null : cutLastUpdate(courseWorkMaterials, lastUpdate);
 
-            return { announcements: filteredAnnouncements, courseWorks: filteredCourseWorks }
+            return { announcements: filteredAnnouncements, courseWorks: filteredCourseWorks, materials: filteredCourseWorkMaterials }
         }
 
         return { announcements, courseWorks };
@@ -70,7 +73,7 @@ function run() {
     scriptProperties.setProperty("lastUpdate", String(Date.now()));
 
     courses.forEach((course) => {
-        const { announcements, courseWorks } = getNewEntries(course, lastUpdate);
+        const { announcements, courseWorks, materials } = getNewEntries(course, lastUpdate);
         if (announcements && announcements.length > 0) {
             announcements.forEach((announcement) => {
                 const { alternateLink, updateTime, creationTime } = announcement;
@@ -82,7 +85,7 @@ function run() {
                     color: isNew ? 3066993 : 2067276,
                     author: {
                         name: course.name,
-                        url: alternateLink
+                        url: course.alternateLink
                     },
                     timestamp: updateTime,
                 });
@@ -91,19 +94,37 @@ function run() {
 
         if (courseWorks && courseWorks.length > 0) {
             courseWorks.forEach((courseWork) => {
-                const { alternateLink, updateTime, creationTime, dueDate, dueTime } = courseWork;
+                const { title, alternateLink, updateTime, creationTime, dueDate, dueTime } = courseWork;
                 const isNew = Math.abs(new Date(creationTime).getTime() - new Date(updateTime).getTime()) < 2000;
                 embeds.push({
-                    title: isNew ? "New Assignment" : "Assignment Updated",
+                    title: (isNew ? "[New Assignment]" : "[Assignment Updated]") + " " + title,
                     url: alternateLink,
                     description: generateEmbedContent(courseWork),
                     color: isNew ? 15105570 : 11027200,
                     author: {
                         name: course.name,
-                        url: alternateLink
+                        url: course.alternateLink
                     },
                     footer: {
                         text: dueDate && dueTime ? "Due: " + convertDue(dueDate, dueTime).toLocaleString(locale) : "No due date specified",
+                    },
+                    timestamp: updateTime,
+                });
+            });
+        }
+
+        if (materials && materials.length > 0) {
+            materials.forEach((material) => {
+                const { title, alternateLink, updateTime, creationTime } = material;
+                const isNew = Math.abs(new Date(creationTime).getTime() - new Date(updateTime).getTime()) < 2000;
+                embeds.push({
+                    title: (isNew ? "[New Material]" : "[Material Updated]") + " " + title,
+                    url: alternateLink,
+                    description: generateEmbedContent(material),
+                    color: isNew ? 15844367 : 12745742,
+                    author: {
+                        name: course.name,
+                        url: course.alternateLink
                     },
                     timestamp: updateTime,
                 });
